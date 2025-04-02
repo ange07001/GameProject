@@ -12,6 +12,7 @@ Entity.default_shader = lit_with_shadows_shader
 editor_camera = EditorCamera(enabled=False, ignore_paused=True)
 player = FirstPersonController(enabled=True)
 player.camera_pivot.y = 1.5
+player.height=1.8
 
 stone_texture = "textures\\stone.png"
 diamond_ore_texture = "textures\\diamond_ore.png"
@@ -42,10 +43,13 @@ mining_text = Text(
 
 money_text = Text(
     text= f"${player_money}", 
-    position = (-0.8,.45),
+    position = (-0.75, .45, -0.01),
     scale= 2,
-    parent= camera.ui
+    parent= camera.ui,
+    color=rgb(0,255,0)
     )
+
+money_bg = Entity(model="quad", scale=(0.5,0.2), position=(-0.85,.455, 0), color = color.gray.tint(-.4), parent = camera.ui)
 
 class Voxel(Button):
     def __init__(self, position=(0,0,0), texture=stone_texture):
@@ -115,7 +119,7 @@ def update():
     global mining_target, mining_start_time, is_mining, player_money
     
     if is_mining and mining_target:
-        hit_info = raycast(camera.world_position, camera.forward, distance=8)
+        hit_info = raycast(camera.world_position, camera.forward, distance=8, debug=True)
         
         if hit_info.hit and hit_info.entity == mining_target:
             elapsed = time.time() - mining_start_time
@@ -153,10 +157,25 @@ def update():
             mining_bar.enabled = False
             mining_text.enabled = False
             mining_bar.scale_x = 0
-    if raycast(player.position, camera.up, distance=2).hit: # ToDo: get pos independent of head orientation
-        player.jump_height = 0
+
+    head_pos = Vec3(
+        player.position.x,
+        player.position.y + 1.5,
+        player.position.z
+    )
+    
+    hit_info = raycast(head_pos, player.up, distance=1)
+    if hit_info.hit:
+        hit_pos = hit_info.world_point
+        horizontal_distance = ((hit_pos.x - head_pos.x)**2 + 
+            (hit_pos.z - head_pos.z)**2)**0.5
+        
+        if horizontal_distance < 0.5:
+            player.jump_height = 0
+        else:
+            player.jump_height = 2
     else:
-        player.jump_height = 2
+        player.jump_height = 1
 
 
 def pause_input(key):
