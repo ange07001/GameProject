@@ -32,6 +32,14 @@ mining_bar_bg = Entity(model='quad', scale=(0.3, 0.03), position=(0, -0.4, 0),
 mining_bar = Entity(model='quad', scale=(0.0, 0.02), position=(-0.148, -0.4, -0.01), 
     origin=(-0.5, 0), color=color.orange, parent=camera.ui, enabled=False)
 
+mining_text = Text(
+    text = "0%",
+    position = (0,-0.3925,-0.2),
+    scale = .75,
+    parent = camera.ui,
+    enabled = False
+    )
+
 money_text = Text(
     text= f"${player_money}", 
     position = (-0.8,.45),
@@ -90,6 +98,7 @@ def input(key):
             is_mining = True
             mining_bar_bg.enabled = True
             mining_bar.enabled = True
+            mining_text.enabled = True
     
 
     if key == 'right mouse up':
@@ -99,6 +108,7 @@ def input(key):
         mining_target = None
         mining_bar_bg.enabled = False
         mining_bar.enabled = False
+        mining_text.enabled = False
         mining_bar.scale_x = 0
 
 def update():
@@ -110,6 +120,7 @@ def update():
         if hit_info.hit and hit_info.entity == mining_target:
             elapsed = time.time() - mining_start_time
             mining_progress = min(elapsed / mining_target.mining_time, 1.0)
+            mining_text.text = f"{round(mining_progress*100)}%"
             hit_info.entity.color
             
             mining_bar.scale_x = mining_progress * 0.3
@@ -131,6 +142,7 @@ def update():
                 is_mining = False
                 mining_bar_bg.enabled = False
                 mining_bar.enabled = False
+                mining_text.enabled = False
                 mining_bar.scale_x = 0
         else:
             if mining_target:
@@ -139,6 +151,7 @@ def update():
             mining_target = None
             mining_bar_bg.enabled = False
             mining_bar.enabled = False
+            mining_text.enabled = False
             mining_bar.scale_x = 0
     if raycast(player.position, camera.up, distance=2).hit: # ToDo: get pos independent of head orientation
         player.jump_height = 0
