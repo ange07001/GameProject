@@ -14,10 +14,10 @@ player = FirstPersonController(enabled=True)
 player.camera_pivot.y = 1.5
 player.height=1.8
 
-stone_texture = "textures\\stone.png"
-diamond_ore_texture = "textures\\diamond_ore.png"
-gold_ore_texture = "textures\\gold_ore.png"
-iron_ore_texture = "textures\\iron_ore.png"
+stone_texture = "textures/stone.png"
+diamond_ore_texture = "textures/diamond_ore.png"
+gold_ore_texture = "textures/gold_ore.png"
+iron_ore_texture = "textures/iron_ore.png"
 
 player_money = 0
 highlight_opacity = .75
