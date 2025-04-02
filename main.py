@@ -93,7 +93,7 @@ for z in range(16):
 
 def input(key):
     global player_money, mining_target, mining_start_time, is_mining, original_color
-    if key == 'right mouse down':
+    if key == 'left mouse down':
         hit_info = raycast(camera.world_position, camera.forward, distance=8)
         if hit_info.hit and hasattr(hit_info.entity, 'value'):
             mining_target = hit_info.entity
@@ -105,7 +105,7 @@ def input(key):
             mining_text.enabled = True
     
 
-    if key == 'right mouse up':
+    if key == 'left mouse up':
         if mining_target:
             mining_target.color = original_color
         is_mining = False
