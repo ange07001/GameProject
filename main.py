@@ -28,6 +28,21 @@ mining_duration = 1.0
 is_mining = False 
 original_color = None
 
+depth = 16
+width = 16
+height = 8
+
+stone_texture = load_texture(stone_texture)
+diamond_ore_texture = load_texture(diamond_ore_texture)
+gold_ore_texture = load_texture(gold_ore_texture)
+iron_ore_texture = load_texture(iron_ore_texture)
+
+border_left = Entity(model="cube", collider="box", visible = False, position = Vec3(-1,-height, depth/2), scale = (-1, height*5, depth*2))
+border_right = Entity(model="cube", collider="box", visible = False, position = Vec3(width,-height, depth/2), scale = (1, height*5, depth*2))
+border_near = Entity(model="cube", collider="box", visible = False, position = Vec3(width/2,-height, -1), scale = (width*2, height*5, 1))
+border_far = Entity(model="cube", collider="box", visible = False, position = Vec3(width/2,-height, depth), scale = (width*2, height*5, 1))
+border_bottom = Entity(model="cube", collider="box", visible = False, position = Vec3(width/2,-height-.5, depth/2), scale = (width*2, -1, depth*2))
+
 mining_bar_bg = Entity(model='quad', scale=(0.3, 0.03), position=(0, -0.4, 0), 
     color=color.gray.tint(-.4), parent=camera.ui, enabled=False)
 mining_bar = Entity(model='quad', scale=(0.0, 0.02), position=(-0.148, -0.4, -0.01), 
@@ -74,9 +89,9 @@ class Voxel(Button):
             self.value = 1
             self.mining_time = 1.0  
 
-for z in range(16):
-    for x in range(16):
-        for y in range(8):
+for z in range(depth):
+    for x in range(width):
+        for y in range(height):
             rand_val = random.random()
             
             if rand_val < 0.005:
