@@ -70,24 +70,42 @@ money_bg = Entity(model="quad", scale=(0.5,0.2), position=(-0.85,.455, 0), color
 pickaxe_level = 1
 upgrade_base_cost = 20
 pickaxe_speed_multiplier = 1.0
+show_upgrade_menu = False
 
 upgrade_menu_bg = Entity(model='quad', scale=(0.7, 0.7), position=(0, 0, 1), 
-    color=color.gray.tint(-.4), parent=camera.ui, enabled=True)
+    color=color.gray.tint(-.4), parent=camera.ui, enabled=False)
 
 upgrade_button = Button(text="Upgrade", scale=(0.2, 0.08),  position=(0, -0.15, -0.01), 
-                        color=color.azure, highlight_color=color.azure.tint(-.2), parent=camera.ui)
+                        color=color.azure, highlight_color=color.azure.tint(-.2), parent=camera.ui, enabled=False)
 
-upgrade_button = Button(text="Close", scale=(0.2, 0.08),  position=(0, -0.25, -0.01), 
-                        color=color.red, highlight_color=color.red.tint(-.2), parent=camera.ui)
+upgrade_close_button = Button(text="Close", scale=(0.2, 0.08),  position=(0, -0.25, -0.01), 
+                        color=color.red, highlight_color=color.red.tint(-.2), parent=camera.ui, enabled=False)
 
 pickaxe_level_text = Text(text=f"Current Level: {pickaxe_level}", position=(-0.13, 0.2, -0.01), 
-                            scale=1.5, parent=camera.ui)
+                            scale=1.5, parent=camera.ui, enabled=False)
 
 upgrade_cost_text = Text(text=f"Upgrade Cost: ${upgrade_base_cost * pickaxe_level}", 
-                            position=(-0.16, 0.1, -0.01), scale=1.5, parent=camera.ui)
+                            position=(-0.16, 0.1, -0.01), scale=1.5, parent=camera.ui, enabled=False)
 
 pickaxe_speed_text = Text(text=f"Mining Speed: {pickaxe_speed_multiplier:.1f}x", 
-                            position=(-0.16, 0, -0.01), scale=1.5, parent=camera.ui)
+                            position=(-0.16, 0, -0.01), scale=1.5, parent=camera.ui, enabled=False)
+
+def toggle_upgrade_menu():
+    global show_upgrade_menu
+    show_upgrade_menu = not show_upgrade_menu
+
+    upgrade_menu_bg.enabled = show_upgrade_menu
+    upgrade_button.enabled = show_upgrade_menu
+    upgrade_close_button.enabled = show_upgrade_menu
+    pickaxe_level_text.enabled = show_upgrade_menu
+    upgrade_cost_text.enabled = show_upgrade_menu
+    pickaxe_speed_text.enabled = show_upgrade_menu
+    
+    player.cursor.enabled = show_upgrade_menu
+    mouse.locked = not show_upgrade_menu
+
+
+
 
 
 class Voxel(Button):
@@ -153,6 +171,13 @@ def input(key):
         mining_bar.enabled = False
         mining_text.enabled = False
         mining_bar.scale_x = 0
+    
+    if show_upgrade_menu:
+        return
+
+    if key == "e":
+        toggle_upgrade_menu()
+        return
 
 def update():
     global mining_target, mining_start_time, is_mining, player_money
