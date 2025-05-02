@@ -13,6 +13,7 @@ editor_camera = EditorCamera(enabled=False, ignore_paused=True)
 player = FirstPersonController(enabled=True)
 player.camera_pivot.y = 1.5
 player.height=1.8
+player.cursor.color = color.white
 
 stone_texture = "textures/stone.png"
 diamond_ore_texture = "textures/diamond_ore.png"
@@ -101,12 +102,9 @@ def toggle_upgrade_menu():
     upgrade_cost_text.enabled = show_upgrade_menu
     pickaxe_speed_text.enabled = show_upgrade_menu
     
-    player.cursor.enabled = show_upgrade_menu
+    player.cursor.enabled = not show_upgrade_menu
     mouse.locked = not show_upgrade_menu
-
-
-
-
+    player.enabled = not show_upgrade_menu
 
 class Voxel(Button):
     def __init__(self, position=(0,0,0), texture=stone_texture):
@@ -150,34 +148,33 @@ for z in range(depth):
 
 def input(key):
     global player_money, mining_target, mining_start_time, is_mining, original_color
-    if key == 'left mouse down':
-        hit_info = raycast(camera.world_position, camera.forward, distance=8)
-        if hit_info.hit and hasattr(hit_info.entity, 'value'):
-            mining_target = hit_info.entity
-            original_color = mining_target.color
-            mining_start_time = time.time()
-            is_mining = True
-            mining_bar_bg.enabled = True
-            mining_bar.enabled = True
-            mining_text.enabled = True
-    
+    if not show_upgrade_menu:
+        if key == 'left mouse down':
+            hit_info = raycast(camera.world_position, camera.forward, distance=8)
+            if hit_info.hit and hasattr(hit_info.entity, 'value'):
+                mining_target = hit_info.entity
+                original_color = mining_target.color
+                mining_start_time = time.time()
+                is_mining = True
+                mining_bar_bg.enabled = True
+                mining_bar.enabled = True
+                mining_text.enabled = True
+        
 
-    if key == 'left mouse up':
-        if mining_target:
-            mining_target.color = original_color
-        is_mining = False
-        mining_target = None
-        mining_bar_bg.enabled = False
-        mining_bar.enabled = False
-        mining_text.enabled = False
-        mining_bar.scale_x = 0
-    
-    if show_upgrade_menu:
-        return
+        if key == 'left mouse up':
+            if mining_target:
+                mining_target.color = original_color
+            is_mining = False
+            mining_target = None
+            mining_bar_bg.enabled = False
+            mining_bar.enabled = False
+            mining_text.enabled = False
+            mining_bar.scale_x = 0
+        
+        if key == "e":
+            toggle_upgrade_menu()
 
-    if key == "e":
-        toggle_upgrade_menu()
-        return
+upgrade_close_button.on_click = toggle_upgrade_menu
 
 def update():
     global mining_target, mining_start_time, is_mining, player_money
