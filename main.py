@@ -95,16 +95,32 @@ def toggle_upgrade_menu():
     global show_upgrade_menu
     show_upgrade_menu = not show_upgrade_menu
 
+    pickaxe_level_text.text = f"Current Level: {pickaxe_level}"
+    upgrade_cost_text.text = f"Upgrade Cost: ${upgrade_base_cost * pickaxe_level}"
+    pickaxe_speed_text.text = f"Mining Speed: {pickaxe_speed_multiplier:.1f}x"
+
     upgrade_menu_bg.enabled = show_upgrade_menu
     upgrade_button.enabled = show_upgrade_menu
     upgrade_close_button.enabled = show_upgrade_menu
     pickaxe_level_text.enabled = show_upgrade_menu
     upgrade_cost_text.enabled = show_upgrade_menu
     pickaxe_speed_text.enabled = show_upgrade_menu
+
+    if show_upgrade_menu:
+        update_upgrade_button_appearance()
     
     player.cursor.enabled = not show_upgrade_menu
     mouse.locked = not show_upgrade_menu
     player.enabled = not show_upgrade_menu
+
+def update_upgrade_button_appearance():
+    cost = upgrade_base_cost * pickaxe_level
+    if player_money >= cost:
+        upgrade_button.color = color.azure
+        upgrade_button.highlight_color = color.azure.tint(-.2)
+    else:
+        upgrade_button.color = color.gray.tint(-.3)
+        upgrade_button.highlight_color = color.gray.tint(-.3)
 
 class Voxel(Button):
     def __init__(self, position=(0,0,0), texture=stone_texture):
@@ -174,7 +190,25 @@ def input(key):
         if key == "e":
             toggle_upgrade_menu()
 
+def upgrade_pickaxe():
+    global player_money, pickaxe_level, pickaxe_speed_multiplier
+    
+    cost = upgrade_base_cost * pickaxe_level
+    
+    if player_money >= cost:
+        player_money -= cost
+        pickaxe_level += 1
+        pickaxe_speed_multiplier = 1.0 + (pickaxe_level - 1) * 0.25
+        
+        money_text.text = f"${player_money}"
+        pickaxe_level_text.text = f"Current Level: {pickaxe_level}"
+        upgrade_cost_text.text = f"Upgrade Cost: ${upgrade_base_cost * pickaxe_level}"
+        pickaxe_speed_text.text = f"Mining Speed: {pickaxe_speed_multiplier:.1f}x"
+
+        update_upgrade_button_appearance()
+
 upgrade_close_button.on_click = toggle_upgrade_menu
+upgrade_button.on_click = upgrade_pickaxe
 
 def update():
     global mining_target, mining_start_time, is_mining, player_money
@@ -184,7 +218,7 @@ def update():
         
         if hit_info.hit and hit_info.entity == mining_target:
             elapsed = time.time() - mining_start_time
-            mining_progress = min(elapsed / mining_target.mining_time, 1.0)
+            mining_progress = min(elapsed * pickaxe_speed_multiplier / mining_target.mining_time, 1.0)
             mining_text.text = f"{round(mining_progress*100)}%"
             hit_info.entity.color
             
@@ -202,6 +236,8 @@ def update():
                 player_money += mining_target.value
                 print(f"Money: ${player_money}")
                 money_text.text = f"${player_money}"
+                if show_upgrade_menu:
+                    update_upgrade_button_appearance()
                 destroy(mining_target)
                 mining_target = None
                 is_mining = False
